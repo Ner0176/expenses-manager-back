@@ -19,7 +19,7 @@ export class TransactionController {
     return await this.transactionService.findAll();
   }
 
-  @Post()
+  @Post('')
   async create(@Body() payload: CreateTransactionDto) {
     await this.transactionService.create(payload);
   }

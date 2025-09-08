@@ -9,6 +9,12 @@ export class Category {
   @Column()
   tag: string;
 
+  @Column()
+  icon: string;
+
+  @Column({ default: false })
+  isDefault: boolean;
+
   @OneToMany(() => Transaction, (transaction) => transaction.category)
   transactions: Transaction[];
 }

@@ -36,4 +36,20 @@ export class CategoryService {
     const category = await this.categoryRepository.findOne({ where: { id } });
     await this.categoryRepository.remove(category);
   }
+
+  async createDefaultCategories() {
+    const DEFAULT_CATEGORIES = [
+      { tag: 'transport', icon: 'mdiBus' },
+      { tag: 'accomodation', icon: 'mdiHomeOutline' },
+      { tag: 'food', icon: 'mdiSilverwareForkKnife' },
+      { tag: 'entertainment', icon: 'mdiMusic' },
+      { tag: 'health', icon: 'mdiPill' },
+    ];
+
+    const userCategories = DEFAULT_CATEGORIES.map((category) =>
+      this.categoryRepository.create({ ...category, isDefault: true }),
+    );
+
+    await this.categoryRepository.save(userCategories);
+  }
 }

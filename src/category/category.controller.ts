@@ -24,6 +24,11 @@ export class CategoryController {
     await this.categoryService.create(payload);
   }
 
+  @Post('create-default')
+  async createDefaultCategories() {
+    await this.categoryService.createDefaultCategories();
+  }
+
   @Delete(':id')
   async deleteCategory(@Param('id', ParseIntPipe) id: number) {
     await this.categoryService.delete(id);
