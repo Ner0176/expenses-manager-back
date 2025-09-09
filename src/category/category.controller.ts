@@ -19,6 +19,11 @@ export class CategoryController {
     return await this.categoryService.getAll();
   }
 
+  @Get(':id')
+  async getOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.categoryService.findOne(id);
+  }
+
   @Post('')
   async createCategory(@Body() payload: CreateCategoryDto) {
     await this.categoryService.create(payload);

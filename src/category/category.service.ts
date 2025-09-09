@@ -19,7 +19,7 @@ export class CategoryService {
     return await this.categoryRepository.findOne({ where: { id } });
   }
 
-  async create({ tag }: CreateCategoryDto) {
+  async create({ tag, icon }: CreateCategoryDto) {
     const alreadyExists = await this.categoryRepository.findOne({
       where: { tag },
     });
@@ -28,7 +28,11 @@ export class CategoryService {
       throw new BadRequestException(`Category with tag: ${tag} already exists`);
     }
 
-    const newCategory = this.categoryRepository.create({ tag });
+    const newCategory = this.categoryRepository.create({
+      tag,
+      icon,
+      isDefault: false,
+    });
     await this.categoryRepository.save(newCategory);
   }
 
