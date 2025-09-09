@@ -6,20 +6,21 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
-import { CreateTransactionDto } from './dtos';
+import { CreateTransactionDto, GetTransactionsDto } from './dtos';
 
 @Controller('transaction')
 export class TransactionController {
   constructor(private transactionService: TransactionService) {}
 
   @Get('')
-  async findAll() {
-    return await this.transactionService.findAll();
+  async findAll(@Query() payload: GetTransactionsDto) {
+    return await this.transactionService.findAll(payload);
   }
 
-  @Post('')
+  @Post('create')
   async create(@Body() payload: CreateTransactionDto) {
     await this.transactionService.create(payload);
   }

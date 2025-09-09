@@ -2,8 +2,13 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from './transaction.entity';
 import { Repository } from 'typeorm';
-import { CreateTransactionDto } from './dtos';
+import {
+  CreateTransactionDto,
+  GetTransactionsDto,
+  TransactionDto,
+} from './dtos';
 import { CategoryService } from 'src/category';
+import { format } from 'date-fns';
 
 @Injectable()
 export class TransactionService {
@@ -13,8 +18,46 @@ export class TransactionService {
     private transactionRepository: Repository<Transaction>,
   ) {}
 
-  async findAll() {
-    return await this.transactionRepository.find({ relations: ['category'] });
+  async findAll({ categoryId }: GetTransactionsDto) {
+    const transactionsList = await this.transactionRepository.find({
+      relations: ['category'],
+      order: { date: 'DESC' },
+      where: { category: { id: categoryId } },
+    });
+
+    let totalGeneral = 0;
+
+    const grouped: Record<string, TransactionDto> = transactionsList.reduce(
+      (acc, tx) => {
+        const formattedDate = format(tx.date, 'dd/MM/yyyy');
+
+        if (!acc[formattedDate]) {
+          acc[formattedDate] = {
+            total: 0,
+            transactions: [],
+          };
+        }
+
+        acc[formattedDate].transactions.push({
+          date: tx.date,
+          title: tx.title,
+          amount: tx.amount,
+          category: tx.category?.tag ?? '',
+          description: tx.description ?? '',
+        });
+
+        acc[formattedDate].total += tx.amount;
+        totalGeneral += tx.amount;
+
+        return acc;
+      },
+      {} as Record<string, TransactionDto>,
+    );
+
+    return {
+      totalGeneral,
+      list: Object.values(grouped),
+    };
   }
 
   async create(payload: CreateTransactionDto) {
@@ -28,7 +71,7 @@ export class TransactionService {
 
     const newTransaction = this.transactionRepository.create({
       ...payload,
-      ...category,
+      ...{ date: new Date(), category },
     });
 
     await this.transactionRepository.save(newTransaction);

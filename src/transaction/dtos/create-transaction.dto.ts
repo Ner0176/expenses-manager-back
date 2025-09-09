@@ -1,4 +1,4 @@
-import { IsDate, IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateTransactionDto {
   @IsString()
@@ -7,9 +7,6 @@ export class CreateTransactionDto {
   @IsString()
   @IsOptional()
   description: string;
-
-  @IsDate()
-  date: Date;
 
   @IsNumber()
   amount: number;
