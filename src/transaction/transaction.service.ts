@@ -42,7 +42,7 @@ export class TransactionService {
           date: tx.date,
           title: tx.title,
           amount: tx.amount,
-          category: tx.category?.tag ?? '',
+          category: tx.category,
           description: tx.description ?? '',
         });
 

@@ -1,4 +1,5 @@
 import { IsNumber, IsOptional } from 'class-validator';
+import { Category } from 'src/category';
 
 export class GetTransactionsDto {
   @IsNumber()
@@ -12,7 +13,7 @@ export class TransactionDto {
     date: Date;
     title: string;
     amount: number;
-    category: string;
+    category: Category;
     description: string;
   }[];
 }
