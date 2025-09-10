@@ -9,7 +9,7 @@ export class Transaction {
   @Column()
   date: Date;
 
-  @Column()
+  @Column('float')
   amount: number;
 
   @Column()

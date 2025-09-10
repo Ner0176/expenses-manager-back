@@ -46,8 +46,8 @@ export class TransactionService {
           description: tx.description ?? '',
         });
 
-        acc[formattedDate].total += tx.amount;
         totalGeneral += tx.amount;
+        acc[formattedDate].total += tx.amount;
 
         return acc;
       },
