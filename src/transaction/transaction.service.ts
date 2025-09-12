@@ -9,11 +9,13 @@ import {
 } from './dtos';
 import { CategoryService } from 'src/category';
 import { format } from 'date-fns';
+import { CurrencyService } from 'src/currency';
 
 @Injectable()
 export class TransactionService {
   constructor(
     private categoryService: CategoryService,
+    private currencyService: CurrencyService,
     @InjectRepository(Transaction)
     private transactionRepository: Repository<Transaction>,
   ) {}
@@ -62,7 +64,9 @@ export class TransactionService {
   }
 
   async create(payload: CreateTransactionDto) {
-    const category = await this.categoryService.findOne(payload.categoryId);
+    const { amount, currency, categoryId } = payload;
+
+    const category = await this.categoryService.findOne(categoryId);
 
     if (!category) {
       throw new NotFoundException(
@@ -70,9 +74,27 @@ export class TransactionService {
       );
     }
 
+    let convertedAmount = amount;
+    let conversionRate: number | null;
+    if (currency !== 'EUR') {
+      const { rate, amount: newAmount } =
+        await this.currencyService.convertCurrency({
+          amount,
+          to: 'EUR',
+          from: currency,
+        });
+      conversionRate = rate;
+      convertedAmount = newAmount;
+    }
+
     const newTransaction = this.transactionRepository.create({
       ...payload,
-      ...{ date: new Date(), category },
+      ...{
+        category,
+        conversionRate,
+        date: new Date(),
+        amount: convertedAmount,
+      },
     });
 
     await this.transactionRepository.save(newTransaction);
@@ -82,6 +104,6 @@ export class TransactionService {
     const transaction = await this.transactionRepository.findOne({
       where: { id },
     });
-    await this.transactionRepository.delete(transaction);
+    await this.transactionRepository.remove(transaction);
   }
 }
