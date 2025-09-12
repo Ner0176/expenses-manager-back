@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Transaction } from './transaction.entity';
-import { Repository } from 'typeorm';
+import { Between, LessThanOrEqual, MoreThanOrEqual, Repository } from 'typeorm';
 import {
   CreateTransactionDto,
   GetTransactionsDto,
@@ -20,11 +20,25 @@ export class TransactionService {
     private transactionRepository: Repository<Transaction>,
   ) {}
 
-  async findAll({ categoryId }: GetTransactionsDto) {
+  async findAll({ categoryId, endDate, startDate }: GetTransactionsDto) {
+    const where: any = {};
+
+    if (categoryId) {
+      where.category = { id: categoryId };
+    }
+
+    if (startDate && endDate) {
+      where.date = Between(startDate, endDate);
+    } else if (startDate) {
+      where.date = MoreThanOrEqual(startDate);
+    } else if (endDate) {
+      where.date = LessThanOrEqual(endDate);
+    }
+
     const transactionsList = await this.transactionRepository.find({
+      where,
       relations: ['category'],
       order: { date: 'DESC' },
-      where: { category: { id: categoryId } },
     });
 
     let totalGeneral = 0;
