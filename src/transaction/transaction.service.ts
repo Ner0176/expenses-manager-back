@@ -39,6 +39,7 @@ export class TransactionService {
         }
 
         acc[formattedDate].transactions.push({
+          id: tx.id,
           date: tx.date,
           title: tx.title,
           amount: tx.amount,

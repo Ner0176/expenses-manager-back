@@ -10,6 +10,7 @@ export class GetTransactionsDto {
 export class TransactionDto {
   total: number;
   transactions: {
+    id: number;
     date: Date;
     title: string;
     amount: number;
