@@ -32,10 +32,9 @@ export class CurrencyService {
 
       const amountInUSD = amount / rates[from];
       const convertedAmount = amountInUSD * rates[to];
-      const rate = rates[to] / rates[from];
 
       return {
-        rate: Number(rate.toFixed(2)),
+        rate: rates[to] / rates[from],
         amount: Number(convertedAmount.toFixed(2)),
       };
     } catch (e) {
