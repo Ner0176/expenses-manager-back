@@ -26,7 +26,9 @@ export class TransactionDto {
     date: Date;
     title: string;
     amount: number;
+    currency: string;
     category: Category;
     description: string;
+    conversionRate?: number;
   }[];
 }

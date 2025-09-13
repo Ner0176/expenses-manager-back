@@ -27,13 +27,9 @@ export class TransactionService {
       where.category = { id: categoryId };
     }
 
-    if (startDate && endDate) {
-      where.date = Between(startDate, endDate);
-    } else if (startDate) {
-      where.date = MoreThanOrEqual(startDate);
-    } else if (endDate) {
-      where.date = LessThanOrEqual(endDate);
-    }
+    if (startDate && endDate) where.date = Between(startDate, endDate);
+    else if (startDate) where.date = MoreThanOrEqual(startDate);
+    else if (endDate) where.date = LessThanOrEqual(endDate);
 
     const transactionsList = await this.transactionRepository.find({
       where,
@@ -60,7 +56,9 @@ export class TransactionService {
           title: tx.title,
           amount: tx.amount,
           category: tx.category,
+          currency: tx.currency,
           description: tx.description ?? '',
+          conversionRate: tx.conversionRate ?? undefined,
         });
 
         totalGeneral += tx.amount;
