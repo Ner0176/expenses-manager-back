@@ -15,7 +15,7 @@ export class Transaction {
   @Column()
   currency: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'numeric', precision: 7, scale: 5 })
   conversionRate: number;
 
   @Column()
