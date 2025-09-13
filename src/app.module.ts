@@ -6,11 +6,13 @@ import { TransactionModule } from './transaction';
 import { CategoryModule } from './category';
 import { CurrencyModule } from './currency';
 import { AppDataSource } from './data-source';
+import { HealthModule } from './health';
 
 @Module({
   providers: [AppService],
   controllers: [AppController],
   imports: [
+    HealthModule,
     CategoryModule,
     CurrencyModule,
     TransactionModule,
