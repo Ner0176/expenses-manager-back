@@ -5,11 +5,16 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
 } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
-import { CreateTransactionDto, GetTransactionsDto } from './dtos';
+import {
+  CreateTransactionDto,
+  EditTransactionDto,
+  GetTransactionsDto,
+} from './dtos';
 
 @Controller('transaction')
 export class TransactionController {
@@ -23,6 +28,14 @@ export class TransactionController {
   @Post('create')
   async create(@Body() payload: CreateTransactionDto) {
     await this.transactionService.create(payload);
+  }
+
+  @Patch('edit/:id')
+  async edit(
+    @Body() payload: EditTransactionDto,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    await this.transactionService.edit(id, payload);
   }
 
   @Delete(':id')

@@ -6,6 +6,7 @@ import {
   TransactionDto,
   GetTransactionsDto,
   CreateTransactionDto,
+  EditTransactionDto,
 } from './dtos';
 import { format } from 'date-fns';
 import { CategoryService } from '../category/category.service';
@@ -75,6 +76,29 @@ export class TransactionService {
     };
   }
 
+  private async currencyConversion({
+    amount,
+    currency,
+  }: {
+    amount: number;
+    currency: string;
+  }) {
+    let convertedAmount = amount;
+    let conversionRate: number | null = null;
+    if (currency !== 'EUR') {
+      const { rate, amount: newAmount } =
+        await this.currencyService.convertCurrency({
+          amount,
+          to: 'EUR',
+          from: currency,
+        });
+      conversionRate = rate;
+      convertedAmount = newAmount;
+    }
+
+    return { conversionRate, convertedAmount };
+  }
+
   async create(payload: CreateTransactionDto) {
     const { amount, currency, categoryId } = payload;
 
@@ -86,18 +110,10 @@ export class TransactionService {
       );
     }
 
-    let convertedAmount = amount;
-    let conversionRate: number | null;
-    if (currency !== 'EUR') {
-      const { rate, amount: newAmount } =
-        await this.currencyService.convertCurrency({
-          amount,
-          to: 'EUR',
-          from: currency,
-        });
-      conversionRate = rate;
-      convertedAmount = newAmount;
-    }
+    const { conversionRate, convertedAmount } = await this.currencyConversion({
+      amount,
+      currency,
+    });
 
     const newTransaction = this.transactionRepository.create({
       ...payload,
@@ -110,6 +126,58 @@ export class TransactionService {
     });
 
     await this.transactionRepository.save(newTransaction);
+  }
+
+  async edit(id: number, payload: EditTransactionDto) {
+    const txDetails = await this.transactionRepository.findOne({
+      where: { id },
+      relations: ['category'],
+    });
+
+    if (!txDetails) {
+      throw new NotFoundException(
+        `Transaction with id: ${id} has not been found`,
+      );
+    }
+
+    let newAmount = payload.amount ?? txDetails.amount;
+    const newCurrency = payload.currency ?? txDetails.currency;
+    let conversionRate: number | null = txDetails.conversionRate ?? null;
+
+    if (!!payload.amount || !!payload.currency) {
+      const { convertedAmount, conversionRate: newRate } =
+        await this.currencyConversion({
+          amount: newAmount,
+          currency: newCurrency,
+        });
+
+      newAmount = convertedAmount;
+      conversionRate = newRate;
+    }
+
+    let category = txDetails.category;
+    if (payload.categoryId !== undefined) {
+      const foundCategory = await this.categoryService.findOne(
+        payload.categoryId,
+      );
+      if (!foundCategory) {
+        throw new NotFoundException(
+          `Category with id: ${payload.categoryId} could not be found`,
+        );
+      }
+      category = foundCategory;
+    }
+
+    const updatedTx = this.transactionRepository.merge(txDetails, {
+      ...payload,
+      category,
+      conversionRate,
+      amount: newAmount,
+      currency: newCurrency,
+    });
+
+    await this.transactionRepository.save(updatedTx);
+    return updatedTx;
   }
 
   async delete(id: number) {
