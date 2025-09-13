@@ -1,5 +1,5 @@
-import { Category } from 'src/category';
 import { Type } from 'class-transformer';
+import { Category } from '../../category/category.entity';
 import { IsDate, IsNumber, IsOptional } from 'class-validator';
 
 export class GetTransactionsDto {

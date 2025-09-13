@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TransactionModule } from './transaction';
 import { CategoryModule } from './category';
 import { CurrencyModule } from './currency';
+import { AppDataSource } from './data-source';
 
 @Module({
   providers: [AppService],
@@ -13,12 +14,7 @@ import { CurrencyModule } from './currency';
     CategoryModule,
     CurrencyModule,
     TransactionModule,
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      synchronize: true,
-      database: 'db.sqlite',
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
-    }),
+    TypeOrmModule.forRoot(AppDataSource.options),
   ],
 })
 export class AppModule {}
